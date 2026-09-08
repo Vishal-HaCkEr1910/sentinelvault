@@ -67,7 +67,7 @@ def _doc_out(doc) -> schemas.DocumentOut:
         id=doc.id, case_id=doc.case_id, title=doc.title, doc_type=doc.doc_type,
         uploader_username=doc.uploader_username, is_sealed=doc.is_sealed,
         custody_k=doc.custody_k, custody_n=doc.custody_n, anchored=doc.anchored,
-        created_at=doc.created_at,
+        created_at=doc.created_at, 
     )
 
 
