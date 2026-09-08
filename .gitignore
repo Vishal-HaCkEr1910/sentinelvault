@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+data/*.db
+data/blobs/*
+data/certificates/*
+data/ca/*
+!data/blobs/.gitkeep
+!data/certificates/.gitkeep
+!data/ca/.gitkeep
+*.egg-info/
+.venv/
+venv/
+.streamlit/
