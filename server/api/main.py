@@ -30,10 +30,29 @@ from core.services import (
 from core import access_control as ac
 from api import schemas
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI(
     title="SentinelVault API",
     description="Secure Digital Document Management System for Legal & Investigation Records — REST layer over the core crypto/service modules.",
     version="1.0.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+from fastapi.middleware.cors import CORSMiddleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
