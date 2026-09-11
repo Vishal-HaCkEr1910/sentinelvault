@@ -1,10 +1,10 @@
-import { useState } from 'react'
-import { useNavigate, Navigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, Navigate, useLocation, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
-import { Eye, EyeOff, ShieldCheck, ChevronDown, ChevronUp, Loader2 } from 'lucide-react'
+import { Eye, EyeOff, ShieldCheck, ChevronDown, ChevronUp, Loader2, ArrowLeft } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { login } from '@/api/auth'
 import { DEMO_USERS, DEMO_PASSWORD } from '@/lib/constants'
@@ -23,6 +23,7 @@ type LoginForm = z.infer<typeof loginSchema>
 
 export function LoginPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { token, login: storeLogin } = useAuthStore()
   const [showPassword, setShowPassword] = useState(false)
   const [showDemoCredentials, setShowDemoCredentials] = useState(false)
@@ -35,6 +36,14 @@ export function LoginPage() {
   } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
   })
+
+  useEffect(() => {
+    const prefill = (location.state as any)?.prefillUsername
+    if (prefill) {
+      setValue('username', prefill)
+      setValue('password', DEMO_PASSWORD)
+    }
+  }, [location.state, setValue])
 
   // Already logged in
   if (token) return <Navigate to="/dashboard" replace />
@@ -58,11 +67,23 @@ export function LoginPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-4">
+        {/* Navigation back to Homepage */}
+        <div className="flex items-center justify-between pb-1">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            <span>Back to Project Overview</span>
+          </Link>
+          <span className="text-[11px] text-slate-400 font-mono">SIH 26190</span>
+        </div>
+
         {/* Brand mark */}
         <div className="flex flex-col items-center gap-3 mb-6">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary shadow-lg">
+          <Link to="/" className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary shadow-lg hover:scale-105 transition-transform">
             <ShieldCheck className="h-8 w-8 text-primary-foreground" />
-          </div>
+          </Link>
           <div className="text-center">
             <h1 className="text-2xl font-bold tracking-tight">Sentinel Vault</h1>
             <p className="text-sm text-muted-foreground mt-1">
