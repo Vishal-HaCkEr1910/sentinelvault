@@ -47,7 +47,7 @@ sentinelvault/
 │   ├── access_control.py                   # RBAC + case-scoping policy engine
 │   ├── storage.py                             # Encrypted blob storage (filesystem stand-in for MinIO/S3)
 │   ├── models.py                                # SQLAlchemy ORM models
-│   ├── db.py                                      # DB engine/session (SQLite by default)
+│   ├── db.py                                      # PostgreSQL engine/session
 │   ├── certificate.py                               # BSA §63(4)-style hash certificate PDF
 │   └── services.py                                    # Orchestration layer — READ THIS FIRST
 ├── api/
@@ -76,8 +76,23 @@ python3 -m venv venv
 source venv/bin/activate          # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
-python seed.py                     # creates demo users, cases, PKI certs (run once)
+# Run as a PostgreSQL administrator, once per machine:
+psql -h localhost -U postgres -d postgres -f setup_postgres.sql
+
+python seed.py                     # creates tables and demo users/cases (run once)
 ```
+
+The application connects to PostgreSQL using:
+
+```text
+postgresql+psycopg2://luffy:luffy@localhost:5432/SentinelVault
+```
+
+Set `DATABASE_URL` to override this value in another environment. The
+database stores users, cases, document metadata, wrapped keys, custody
+shares, audit entries, blockchain blocks, and search keys. Encrypted file
+contents remain in the configured object-storage layer and are referenced by
+the document's `blob_path` column.
 
 All demo accounts use the password `password123`:
 
@@ -174,8 +189,10 @@ understand security" from "we hope nobody asks":
   compromised, there's no mechanism here to re-wrap existing documents
   under a new key or revoke a certificate. Production needs a CRL/OCSP
   story and a re-keying procedure.
-- **SQLite, not PostgreSQL.** Swapping `core/db.py`'s `SQLALCHEMY_URL` is
-  the only change needed — nothing else touches the database directly.
+- **The demo still uses local filesystem blob storage instead of MinIO.**
+  PostgreSQL now stores all relational metadata and cryptographic records;
+  MinIO integration can replace `core/storage.py` without changing the
+  database contract.
 - **Certificate generation is NOT a legal opinion.** It illustrates the
   kind of artifact Section 63(4) of the Bharatiya Sakshya Adhiniyam, 2023
   asks for, generated from real cryptographic material — it is not

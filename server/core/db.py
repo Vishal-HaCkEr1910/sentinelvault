@@ -1,24 +1,21 @@
-"""
-db.py
-=====
-SQLite engine + session factory. Swap SQLALCHEMY_URL for a PostgreSQL DSN
-to move to a real deployment — nothing in core/services.py or above needs
-to change, since everything talks to the DB through SQLAlchemy sessions.
-"""
+"""PostgreSQL engine and SQLAlchemy session factory."""
 from __future__ import annotations
 
 import os
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from core.models import Base
 
-DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
-os.makedirs(DATA_DIR, exist_ok=True)
+load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 
-SQLALCHEMY_URL = f"sqlite:///{os.path.join(DATA_DIR, 'sentinelvault.db')}"
+SQLALCHEMY_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql+psycopg2://luffy:luffy@localhost:5432/SentinelVault",
+)
 
-engine = create_engine(SQLALCHEMY_URL, connect_args={"check_same_thread": False})
+engine = create_engine(SQLALCHEMY_URL, pool_pre_ping=True)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 
